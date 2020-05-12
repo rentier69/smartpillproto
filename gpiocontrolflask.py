@@ -1,11 +1,16 @@
-from gpiozero import Button, AngularServo
+from RPi.GPIO as gpio
 from time import sleep
 from flask import Flask, render_template
-
+import datetime
+#Setup
+servo = 18
+gpio.setmode(gpio.BCM)
+gpio.setup(servo, gpio.OUT)
+#Startposition Servo
+p = gpio.PWM(servo, 50)
+p.start(2.5)
 app = Flask(__name__)
 
-servo = AngularServo(17, min_angle=0, max_angle=180, min_pulse_width=0.0005, max_pulse_width=0.0025,frame_width=0.03)
-btn = Button(27)
 
 @app.route("/")
 def index():
@@ -17,16 +22,20 @@ def index():
        }
     return render_template('index.html', **templateData)
 
-@app.route("/<deviceName>/<action>"")
-def action(deviceName, action):
-    if deviceName == 'servo':
-        actuator == 'servo'
-
+@app.route("/<action>")
+def action(action):
     if action == "on":
-        servo.angle = 180
-    if action == "off":
-        servo.angle = 0
+        for x in range(25,125,1):
+          xedit = x/10
+          p.ChangeDutyCycle(xedit)
+          time.sleep(0.02)
 
+    if action == "off":
+        for y in range(125,25,-1):
+          yedit = y/10
+          p.ChangeDutyCycle(yedit)
+          time.sleep(0.02)
+    templateData = {}
     return render_template('index.html', **templateData)
 
 if __name__ == "__main__":
